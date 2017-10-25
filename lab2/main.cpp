@@ -17,19 +17,9 @@
 // $Id: RF22.h,v 1.21 2012/05/30 01:51:25 mikem Exp $
 #include <bcm2835.h>
 #include <stdio.h>
+#include "pin.h"
 // Blinks on RPi Plug P1 pin 11 (which is GPIO pin 17)
 #define PIN RPI_GPIO_P1_11
-class Pin
-{
- public:
-    int nr;
- public:
-     int directie;
- public: int stare;
-
-
-
-};
 
 int main(int argc, char **argv)
 {
@@ -38,20 +28,18 @@ int main(int argc, char **argv)
     bcm2835_set_debug(1);
     if (!bcm2835_init())
       return 1;
+    Pin *pin = new Pin(PIN,BCM2835_GPIO_FSEL_OUTP,0);
     // Set the pin to be an output
-    bcm2835_gpio_fsel(PIN, BCM2835_GPIO_FSEL_OUTP);
+
     // Blink
     while (1)
     {
-        // Turn it on
-        bcm2835_gpio_write(PIN, HIGH);
+        pin->set(HIGH);
 
-        // wait a bit
         bcm2835_delay(500);
 
         // turn it off
-        bcm2835_gpio_write(PIN, LOW);
-
+        pin->set(LOW);
         // wait a bit
         bcm2835_delay(500);
     }
