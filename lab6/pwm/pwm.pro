@@ -1,6 +1,6 @@
 #-------------------------------------------------
 #
-# Project created by QtCreator 2017-10-11T16:47:35
+# Project created by QtCreator 2017-11-01T16:16:39
 #
 #-------------------------------------------------
 
@@ -8,13 +8,18 @@ QT       += core gui
 
 greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 
-TARGET = iep
+TARGET = pwm
 TEMPLATE = app
 
 
-SOURCES +=\
-        mainwindow.cpp
+SOURCES += main.cpp \
+    bcm2835_stub.cpp \
+    pin.cpp \
+    pwm.cpp
 
-HEADERS  += mainwindow.h
+HEADERS  += \
+    pin.h \
+    bcm2835.h \
+    pwm.h
 
 FORMS    += mainwindow.ui
