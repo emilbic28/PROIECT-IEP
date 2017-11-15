@@ -21,6 +21,8 @@
 #include <stdio.h>
 #include "pin.h"
 #include "pwm.h"
+#include "spi.h"
+#include "serial.h"
 // PWM output on RPi Plug P1 pin 12 (which is GPIO pin 18)
 // in alt fun 5.
 // Note that this is the _only_ PWM pin available on the RPi IO headers
@@ -31,29 +33,21 @@
 #define RANGE 1024
 int main(int argc, char **argv)
 {
+    SPI *c;
+    bcm2835_set_debug(1);
     if (!bcm2835_init())
-        return 1;
-    // Set the output pin to Alt Fun 5, to allow PWM channel 0 to be output there
-    bcm2835_gpio_fsel(PIN, BCM2835_GPIO_FSEL_ALT5);
-    // Clock divider is set to 16.
-    // With a divider of 16 and a RANGE of 1024, in MARKSPACE mode,
-    // the pulse repetition frequency will be
-    // 1.2MHz/1024 = 1171.875Hz, suitable for driving a DC motor with PWM
-    bcm2835_pwm_set_clock(BCM2835_PWM_CLOCK_DIVIDER_16);
-    bcm2835_pwm_set_mode(PWM_CHANNEL, 1, 1);
-    bcm2835_pwm_set_range(PWM_CHANNEL, RANGE);
-    // Vary the PWM m/s ratio between 1/RANGE and (RANGE-1)/RANGE
-    // over the course of a a few seconds
-
-   Pwm *pw =new Pwm(1024,0);
-
-    while (1)
     {
-        if(pw->get_factor_umplere()<100)
-            pw->set_factor_umplere(pw->get_factor_umplere()+10);
-        else
-            pw->set_factor_umplere(0);
+      printf("bcm2835_init failed. Are you running as root??\n");
+      return 1;
     }
-    bcm2835_close();
+    if (!bcm2835_spi_begin())
+    {
+      printf("bcm2835_spi_begin failed. Are you running as root??\n");
+      return 1;
+    }
+    c=new SPI(BCM2835_SPI_BIT_ORDER_MSBFIRST,BCM2835_SPI_MODE0,BCM2835_SPI_CLOCK_DIVIDER_65536,BCM2835_SPI_CS0,LOW);
+    uint8_t send_data = 0x23;
+    uint8_t read_data = c->transfer(send_data);
+    printf("Sent to SPI: 0x%02X. Read back from SPI: 0x%02X.\n", send_data, read_data);
     return 0;
 }
